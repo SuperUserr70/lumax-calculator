@@ -1,75 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="te">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Touch Hisab</title>
+<title>టచ్ లెక్కలు</title>
 
 <style>
-body {
+:root{
+  --bg:#f1f5f9;
+  --card:#ffffff;
+  --primary:#0f766e;
+  --secondary:#1e293b;
+  --price:#475569;
+  --danger:#b91c1c;
+}
+
+body{
+  margin:0;
   font-family: system-ui, Arial;
-  margin: 0;
-  background: #f4f4f4;
+  background:var(--bg);
+  color:#0f172a;
 }
 
-header {
-  text-align: center;
-  padding: 14px;
-  font-size: 22px;
-  font-weight: bold;
+header{
+  background:linear-gradient(135deg,#0f766e,#0891b2);
+  color:white;
+  padding:16px;
+  text-align:center;
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:.5px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 12px;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  padding:14px;
 }
 
-.item {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 18px 8px;
-  text-align: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,.2);
-  cursor: pointer;
+.item{
+  background:var(--card);
+  border-radius:16px;
+  padding:20px 10px;
+  text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  cursor:pointer;
+  transition:transform .05s ease;
 }
 
-.item-name {
-  font-size: 28px;
-  font-weight: bold;
+.item:active{
+  transform:scale(.97);
 }
 
-.price {
-  font-size: 20px;
-  color: #444;
-  margin-top: 6px;
+.item-name{
+  font-size:30px;
+  font-weight:800;
+  color:var(--secondary);
 }
 
-.qty {
-  font-size: 22px;
-  margin-top: 8px;
-  font-weight: bold;
+.price{
+  font-size:20px;
+  color:var(--price);
+  margin-top:6px;
 }
 
-footer {
-  position: sticky;
-  bottom: 0;
-  background: #222;
-  color: #fff;
-  padding: 14px;
-  text-align: center;
-  font-size: 26px;
+.qty{
+  font-size:22px;
+  margin-top:10px;
+  font-weight:700;
+  color:var(--primary);
 }
 
-.reset {
-  background: #c62828;
-  margin-left: 14px;
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 18px;
-  border: none;
-  color: white;
+footer{
+  position:sticky;
+  bottom:0;
+  background:#020617;
+  color:white;
+  padding:14px 10px;
+  text-align:center;
+}
+
+.total{
+  font-size:28px;
+  font-weight:800;
+}
+
+.reset{
+  margin-left:12px;
+  background:var(--danger);
+  border:none;
+  border-radius:10px;
+  padding:8px 18px;
+  font-size:18px;
+  color:white;
+}
+
+.credit{
+  margin-top:6px;
+  font-size:12px;
+  opacity:.75;
 }
 </style>
 </head>
@@ -113,26 +143,27 @@ footer {
 </div>
 
 <footer>
-  మొత్తం ₹<span id="total">0</span>
-  <button class="reset" onclick="resetAll()">రిసెట్</button>
+  <div class="total">
+    మొత్తం ₹<span id="total">0</span>
+    <button class="reset" onclick="resetAll()">రిసెట్</button>
+  </div>
+  <div class="credit">Designed by LumaTech</div>
 </footer>
 
 <script>
-let total = 0;
-let qty = {};
+let total=0,qty={};
 
-function add(id, price) {
-  qty[id] = (qty[id] || 0) + 1;
-  document.getElementById(id).innerText = qty[id];
-  total += price;
-  document.getElementById("total").innerText = total;
+function add(id,price){
+  qty[id]=(qty[id]||0)+1;
+  document.getElementById(id).innerText=qty[id];
+  total+=price;
+  document.getElementById("total").innerText=total;
 }
 
-function resetAll() {
-  total = 0;
-  qty = {};
-  document.getElementById("total").innerText = 0;
-  document.querySelectorAll(".qty").forEach(q => q.innerText = 0);
+function resetAll(){
+  total=0; qty={};
+  document.getElementById("total").innerText=0;
+  document.querySelectorAll(".qty").forEach(q=>q.innerText=0);
 }
 </script>
 
