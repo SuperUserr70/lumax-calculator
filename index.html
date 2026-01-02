@@ -3,20 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LUMAX Calculator</title>
-<!-- PWA / Icon -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.png" type="image/png">
-<link rel="apple-touch-icon" href="icon.png">
+<title>Lumax Enterprises</title>
 
+<link rel="icon" href="icon.png">
 <meta name="theme-color" content="#0f766e">
+
 <style>
 :root{
   --bg:#f1f5f9;
   --card:#ffffff;
   --primary:#0f766e;
   --secondary:#1e293b;
-  --price:#475569;
   --danger:#b91c1c;
 }
 
@@ -24,7 +21,6 @@ body{
   margin:0;
   font-family: system-ui, Arial;
   background:var(--bg);
-  color:#0f172a;
 }
 
 header{
@@ -34,8 +30,10 @@ header{
   text-align:center;
   font-size:22px;
   font-weight:700;
-  letter-spacing:.5px;
+  user-select:none;
 }
+
+.hidden{ display:none; }
 
 .grid{
   display:grid;
@@ -51,112 +49,136 @@ header{
   text-align:center;
   box-shadow:0 6px 14px rgba(0,0,0,.08);
   cursor:pointer;
-  transition:transform .05s ease;
 }
 
-.item:active{
-  transform:scale(.97);
-}
+.item-name{ font-size:30px; font-weight:800; }
+.price{ font-size:20px; color:#555; }
+.qty{ font-size:24px; font-weight:800; color:var(--danger); }
 
-.item-name{
-  font-size:30px;
-  font-weight:800;
-  color:var(--secondary);
-}
-
-.price{
-  font-size:20px;
-  color:var(--price);
-  margin-top:6px;
-}
-
-.qty{
-  font-size:24px;
-  margin-top:10px;
-  font-weight:800;
-  color:var(--danger);
-}
 footer{
   position:sticky;
   bottom:0;
   background:#020617;
   color:white;
-  padding:14px 10px;
+  padding:14px;
   text-align:center;
 }
 
-.total{
-  font-size:28px;
-  font-weight:800;
-}
-
-.reset{
-  margin-left:12px;
+.btn{
+  margin:6px;
   background:var(--danger);
   border:none;
   border-radius:10px;
-  padding:8px 18px;
-  font-size:18px;
+  padding:10px 18px;
+  font-size:16px;
   color:white;
 }
 
-.credit{
-  margin-top:6px;
-  font-size:12px;
-  opacity:.75;
+.admin-box{ padding:16px; }
+
+.section{
+  background:white;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:14px;
+}
+
+pre{
+  white-space:pre-line;
+  font-size:15px;
 }
 </style>
 </head>
 
 <body>
 
-<header>టచ్ లెక్కలు</header>
+<header id="appHeader">Lumax Enterprises</header>
 
-<div class="grid">
+<!-- ================= CALCULATOR ================= -->
+<div id="calculator">
 
-  <div class="item" onclick="add('oneL',120)">
-    <div class="item-name">1 లీటర్</div>
-    <div class="price">₹120</div>
-    <div class="qty" id="oneL">0</div>
+  <div class="grid">
+
+    <div class="item" onclick="add('oneL',120)">
+      <div class="item-name">1 లీటర్</div>
+      <div class="price">₹120</div>
+      <div class="qty" id="oneL">0</div>
+    </div>
+
+    <div class="item" onclick="add('halfL',160)">
+      <div class="item-name">హాఫ్ లీటర్</div>
+      <div class="price">₹160</div>
+      <div class="qty" id="halfL">0</div>
+    </div>
+
+    <div class="item" onclick="add('twoL',180)">
+      <div class="item-name">2 లీటర్</div>
+      <div class="price">₹180</div>
+      <div class="qty" id="twoL">0</div>
+    </div>
+
+    <div class="item" onclick="add('badam',530)">
+      <div class="item-name">బాదం</div>
+      <div class="price">₹530</div>
+      <div class="qty" id="badam">0</div>
+    </div>
+
+    <div class="item" onclick="add('campa',230)">
+      <div class="item-name">క్యాంపా</div>
+      <div class="price">₹230</div>
+      <div class="qty" id="campa">0</div>
+    </div>
+
   </div>
 
-  <div class="item" onclick="add('halfL',160)">
-    <div class="item-name">హాఫ్ లీటర్</div>
-    <div class="price">₹160</div>
-    <div class="qty" id="halfL">0</div>
-  </div>
-
-  <div class="item" onclick="add('twoL',180)">
-    <div class="item-name">2 లీటర్</div>
-    <div class="price">₹180</div>
-    <div class="qty" id="twoL">0</div>
-  </div>
-
-  <div class="item" onclick="add('badam',530)">
-    <div class="item-name">బాదం</div>
-    <div class="price">₹530</div>
-    <div class="qty" id="badam">0</div>
-  </div>
-
-  <div class="item" onclick="add('campa',230)">
-    <div class="item-name">క్యాంపా</div>
-    <div class="price">₹230</div>
-    <div class="qty" id="campa">0</div>
-  </div>
-
-</div>
-
-<footer>
+  <footer>
   <div class="total">
     మొత్తం ₹<span id="total">0</span>
-    <button class="reset" onclick="resetAll()">రిసెట్</button>
+    <button class="btn" onclick="resetAll()">రిసెట్</button>
+    <button class="btn" id="summaryBtn" style="display:none" onclick="showSummary()">సారాంశం</button>
   </div>
   <div class="credit">Designed by LumaTech</div>
 </footer>
 
-<script>
-let total=0,qty={};
+</div>
 
+<!-- ================= ADMIN ================= -->
+<div id="adminPanel" class="hidden admin-box">
+
+  <div class="section">
+    <h3>📅 Daily Totals</h3>
+    <pre id="dailyTotals"></pre>
+  </div>
+
+  <div class="section">
+    <h3>🧾 Receipt Preview</h3>
+    <pre id="receiptBox"></pre>
+  </div>
+
+  <button class="btn" onclick="sendSummary()">📤 Send</button>
+  <button class="btn" onclick="downloadCSV()">⬇ CSV</button>
+  <button class="btn" onclick="window.print()">🖨 Print</button>
+  <button class="btn secondary" onclick="clearSales()">🗑 Clear today Sales</button>
+  <button class="btn" onclick="exitAdmin()">🔙 Exit</button>
+
+</div>
+
+<script>
+/* ===== CONFIG ===== */
+const ADMIN_PIN = "8003";
+
+/* ===== DATA ===== */
+let total=0, qty={};
+
+const ITEMS={
+  oneL:"1 లీటర్",
+  halfL:"హాఫ్ లీటర్",
+  twoL:"2 లీటర్",
+  badam:"బాదం",
+  campa:"క్యాంపా"
+};
+
+/* ===== SELL ===== */
 function add(id,price){
   qty[id]=(qty[id]||0)+1;
   document.getElementById(id).innerText=qty[id];
@@ -165,10 +187,118 @@ function add(id,price){
 }
 
 function resetAll(){
+  if(total>0) saveSale();
   total=0; qty={};
   document.getElementById("total").innerText=0;
   document.querySelectorAll(".qty").forEach(q=>q.innerText=0);
 }
+
+/* ===== STORAGE ===== */
+function saveSale(){
+  const sales=JSON.parse(localStorage.getItem("sales")||"[]");
+  let items={};
+  for(let id in qty) items[ITEMS[id]]=qty[id];
+  sales.push({date:new Date().toISOString(),items,total});
+  localStorage.setItem("sales",JSON.stringify(sales));
+}
+
+/* ===== ADMIN ACCESS ===== */
+let pressTimer;
+const header=document.getElementById("appHeader");
+header.addEventListener("touchstart",()=>pressTimer=setTimeout(askPin,3000));
+header.addEventListener("touchend",()=>clearTimeout(pressTimer));
+header.addEventListener("dblclick",askPin);
+
+function askPin(){
+  const pin=prompt("Admin PIN");
+  if(pin===ADMIN_PIN) enterAdmin();
+  else alert("Wrong PIN");
+}
+
+function enterAdmin(){
+  document.getElementById("calculator").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  buildAdminData();
+}
+
+function exitAdmin(){
+  document.getElementById("adminPanel").classList.add("hidden");
+  document.getElementById("calculator").classList.remove("hidden");
+}
+
+/* ===== ADMIN DATA ===== */
+function buildAdminData(){
+  const sales=JSON.parse(localStorage.getItem("sales")||"[]");
+  buildDailyTotals(sales);
+  buildReceipt(sales);
+}
+
+function buildDailyTotals(sales){
+  let map={};
+  sales.forEach(s=>{
+    const d=s.date.split("T")[0];
+    map[d]=(map[d]||0)+s.total;
+  });
+  let txt="";
+  for(let d in map) txt+=`${d} → ₹${map[d]}\n`;
+  document.getElementById("dailyTotals").innerText=txt||"No data";
+}
+
+function buildReceipt(sales){
+  let txt="Lumax Enterprises\n------------------\n";
+  sales.forEach((s,i)=>{
+    txt+=`#${i+1} ${new Date(s.date).toLocaleString()}\n`;
+    for(let k in s.items) txt+=` ${k} x ${s.items[k]}\n`;
+    txt+=` Total: ₹${s.total}\n\n`;
+  });
+  document.getElementById("receiptBox").innerText=txt||"No data";
+}
+
+/* ===== EXPORTS ===== */
+function sendSummary(){
+  const text=document.getElementById("receiptBox").innerText;
+  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+}
+
+function downloadCSV(){
+  const sales=JSON.parse(localStorage.getItem("sales")||"[]");
+  let csv="Date,Item,Qty,Total\n";
+  sales.forEach(s=>{
+    for(let k in s.items){
+      csv+=`${s.date},${k},${s.items[k]},${s.total}\n`;
+    }
+  });
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="sales.csv";
+  a.click();
+}
+function clearSales(){
+  // Step 1: Confirmation (English)
+  const ok = confirm("⚠️ Are you sure you want to permanently delete ALL sales data?");
+  if(!ok) return;
+
+  // Step 2: PIN re-check (English)
+  const pin = prompt("Re-enter Admin PIN to confirm");
+  if(pin !== ADMIN_PIN){
+    alert("❌ Wrong PIN. Sales data was NOT deleted.");
+    return;
+  }
+
+  // Step 3: Clear storage
+  localStorage.removeItem("sales");
+
+  // Step 4: Clear admin UI
+  const daily = document.getElementById("dailyTotals");
+  const receipt = document.getElementById("receiptBox");
+  if(daily) daily.innerText = "No data available";
+  if(receipt) receipt.innerText = "No data available";
+
+  alert("✅ All sales data has been cleared successfully.");
+}
+
+
 </script>
 
 </body>
