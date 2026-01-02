@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- 🔒 ZOOM LOCK (IMPORTANT) -->
 <meta name="viewport"
       content="width=device-width,
                initial-scale=1,
@@ -12,7 +11,6 @@
 
 <title>Lumax Enterprises</title>
 
-<!-- PWA / Install -->
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
@@ -26,84 +24,37 @@
   --secondary:#1e293b;
   --danger:#b91c1c;
 }
-
-body{
-  margin:0;
-  font-family: system-ui, Arial;
-  background:var(--bg);
-}
-
+body{margin:0;font-family:system-ui,Arial;background:var(--bg);}
 header{
   background:linear-gradient(135deg,#0f766e,#0891b2);
-  color:white;
-  padding:16px;
-  text-align:center;
-  font-size:22px;
-  font-weight:700;
-  user-select:none;
+  color:white;padding:16px;text-align:center;
+  font-size:22px;font-weight:700;user-select:none;
 }
-
-.hidden{ display:none; }
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-  padding:14px;
-}
-
+.hidden{display:none;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;padding:14px;}
 .item{
-  background:var(--card);
-  border-radius:16px;
-  padding:20px 10px;
-  text-align:center;
-  box-shadow:0 6px 14px rgba(0,0,0,.08);
+  background:var(--card);border-radius:16px;padding:20px 10px;
+  text-align:center;box-shadow:0 6px 14px rgba(0,0,0,.08);
   cursor:pointer;
 }
-
-.item:active{
-  transform:scale(0.96);
-  background:#e5f3f2;
-}
-
-.item-name{ font-size:30px; font-weight:800; }
-.price{ font-size:20px; color:#555; }
-.qty{ font-size:24px; font-weight:800; color:var(--danger); }
-
+.item:active{transform:scale(.96);background:#e5f3f2;}
+.item-name{font-size:30px;font-weight:800;}
+.price{font-size:20px;color:#555;}
+.qty{font-size:24px;font-weight:800;color:var(--danger);}
 footer{
-  position:sticky;
-  bottom:0;
-  background:#020617;
-  color:white;
-  padding:14px;
-  text-align:center;
+  position:sticky;bottom:0;background:#020617;color:white;
+  padding:14px;text-align:center;
 }
-
 .btn{
-  margin:6px;
-  background:var(--danger);
-  border:none;
-  border-radius:10px;
-  padding:10px 18px;
-  font-size:16px;
-  color:white;
+  margin:6px;background:var(--danger);border:none;
+  border-radius:10px;padding:10px 18px;font-size:16px;color:white;
 }
-
-.btn.secondary{ background:#475569; }
-
-.admin-box{ padding:16px; }
-
+.btn.secondary{background:#475569;}
+.admin-box{padding:16px;}
 .section{
-  background:white;
-  border-radius:12px;
-  padding:12px;
-  margin-bottom:14px;
+  background:white;border-radius:12px;padding:12px;margin-bottom:14px;
 }
-
-pre{
-  white-space:pre-line;
-  font-size:15px;
-}
+pre{white-space:pre-line;font-size:15px;}
 </style>
 </head>
 
@@ -113,7 +64,6 @@ pre{
 
 <!-- ================= CALCULATOR ================= -->
 <div id="calculator">
-
   <div class="grid">
 
     <div class="item" onclick="add('oneL',120)">
@@ -149,15 +99,19 @@ pre{
   </div>
 
   <footer>
-    <h3>మొత్తం ₹<span id="total">0</span></h3>
+    <h2>మొత్తం ₹<span id="total">0</span></h2>
     <button class="btn" onclick="resetAll()">రిసెట్</button>
     <div class="credit">Designed by LumaTech</div>
   </footer>
-
 </div>
 
 <!-- ================= ADMIN ================= -->
 <div id="adminPanel" class="hidden admin-box">
+
+  <div class="section">
+    <h3>📅 Today Item-wise Summary</h3>
+    <pre id="itemToday"></pre>
+  </div>
 
   <div class="section">
     <h3>📅 Daily Totals</h3>
@@ -180,11 +134,10 @@ pre{
 <script>
 /* ================= CONFIG ================= */
 const ADMIN_PIN = "8003";
-let adminLogoutTimer = null;
+let adminLogoutTimer=null;
 
 /* ================= DATA ================= */
-let total=0, qty={};
-
+let total=0,qty={};
 const ITEMS={
   oneL:"1 లీటర్",
   halfL:"హాఫ్ లీటర్",
@@ -200,10 +153,9 @@ function add(id,price){
   total+=price;
   document.getElementById("total").innerText=total;
 }
-
 function resetAll(){
   if(total>0) saveSale();
-  total=0; qty={};
+  total=0;qty={};
   document.getElementById("total").innerText=0;
   document.querySelectorAll(".qty").forEach(q=>q.innerText=0);
 }
@@ -217,32 +169,40 @@ function saveSale(){
   localStorage.setItem("sales",JSON.stringify(sales));
 }
 
-/* ================= ADMIN ACCESS (SMART) ================= */
-let usingTouch = false;
+/* ================= ADMIN ACCESS (STRICT 3 CONTINUOUS CLICKS) ================= */
+let clickCount=0;
+let lastClickTime=0;
+let firstClickTime=0;
 
-// detect input type
-window.addEventListener("touchstart", () => {
-  usingTouch = true;
-}, { once:true });
-
-window.addEventListener("mousemove", () => {
-  usingTouch = false;
-}, { once:true });
-
-let pressTimer;
 const header=document.getElementById("appHeader");
 
-// 📱 Mobile → long press only
-header.addEventListener("touchstart",()=>{
-  if(!usingTouch) return;
-  pressTimer=setTimeout(askPin,3000);
-});
-header.addEventListener("touchend",()=>clearTimeout(pressTimer));
+header.addEventListener("click",()=>{
+  const now = Date.now();
 
-// 💻 Desktop → double click only
-header.addEventListener("dblclick",()=>{
-  if(usingTouch) return;
-  askPin();
+  // First click
+  if(clickCount===0){
+    firstClickTime = now;
+    clickCount = 1;
+    lastClickTime = now;
+    return;
+  }
+
+  // Gap too large → reset
+  if(now - lastClickTime > 600 || now - firstClickTime > 5000){
+    clickCount = 1;
+    firstClickTime = now;
+    lastClickTime = now;
+    return;
+  }
+
+  clickCount++;
+  lastClickTime = now;
+
+  // Success
+  if(clickCount === 3){
+    clickCount = 0;
+    askPin();
+  }
 });
 
 function askPin(){
@@ -255,7 +215,6 @@ function enterAdmin(){
   document.getElementById("calculator").classList.add("hidden");
   document.getElementById("adminPanel").classList.remove("hidden");
   buildAdminData();
-
   clearTimeout(adminLogoutTimer);
   adminLogoutTimer=setTimeout(exitAdmin,5*60*1000);
 }
@@ -269,8 +228,24 @@ function exitAdmin(){
 /* ================= ADMIN DATA ================= */
 function buildAdminData(){
   const sales=JSON.parse(localStorage.getItem("sales")||"[]");
+  buildItemToday(sales);
   buildDailyTotals(sales);
   buildReceipt(sales);
+}
+
+function buildItemToday(sales){
+  const today=new Date().toISOString().split("T")[0];
+  let map={};
+  sales.forEach(s=>{
+    if(s.date.startsWith(today)){
+      for(let k in s.items){
+        map[k]=(map[k]||0)+s.items[k];
+      }
+    }
+  });
+  let txt="";
+  for(let k in map) txt+=`${k} : ${map[k]}\n`;
+  document.getElementById("itemToday").innerText=txt||"No data";
 }
 
 function buildDailyTotals(sales){
@@ -300,7 +275,6 @@ function sendSummary(){
     document.getElementById("receiptBox").innerText
   )}`);
 }
-
 function downloadCSV(){
   const sales=JSON.parse(localStorage.getItem("sales")||"[]");
   let csv="Date,Item,Qty,Total\n";
@@ -316,18 +290,16 @@ function downloadCSV(){
   a.click();
 }
 
-/* ================= CLEAR SALES (SAFE) ================= */
+/* ================= CLEAR SALES ================= */
 function clearSales(){
   if(!confirm("Delete ALL sales permanently?")) return;
   const pin=prompt("Re-enter Admin PIN");
-  if(pin!==ADMIN_PIN){
-    alert("Wrong PIN. Action cancelled.");
-    return;
-  }
+  if(pin!==ADMIN_PIN){alert("Wrong PIN");return;}
   localStorage.removeItem("sales");
+  document.getElementById("itemToday").innerText="No data";
   document.getElementById("dailyTotals").innerText="No data";
   document.getElementById("receiptBox").innerText="No data";
-  alert("Sales cleared successfully.");
+  alert("Sales cleared");
 }
 </script>
 
