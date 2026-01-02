@@ -2,10 +2,20 @@
 <html lang="te">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- 🔒 ZOOM LOCK (IMPORTANT) -->
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no">
+
 <title>Lumax Enterprises</title>
 
+<!-- PWA / Install -->
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="theme-color" content="#0f766e">
 
 <style>
@@ -51,6 +61,11 @@ header{
   cursor:pointer;
 }
 
+.item:active{
+  transform:scale(0.96);
+  background:#e5f3f2;
+}
+
 .item-name{ font-size:30px; font-weight:800; }
 .price{ font-size:20px; color:#555; }
 .qty{ font-size:24px; font-weight:800; color:var(--danger); }
@@ -73,6 +88,8 @@ footer{
   font-size:16px;
   color:white;
 }
+
+.btn.secondary{ background:#475569; }
 
 .admin-box{ padding:16px; }
 
@@ -132,13 +149,10 @@ pre{
   </div>
 
   <footer>
-  <div class="total">
-    మొత్తం ₹<span id="total">0</span>
+    <h3>మొత్తం ₹<span id="total">0</span></h3>
     <button class="btn" onclick="resetAll()">రిసెట్</button>
-    <button class="btn" id="summaryBtn" style="display:none" onclick="showSummary()">సారాంశం</button>
-  </div>
-  <div class="credit">Designed by LumaTech</div>
-</footer>
+	<div class="credit">Designed by LumaTech</div>
+  </footer>
 
 </div>
 
@@ -151,23 +165,24 @@ pre{
   </div>
 
   <div class="section">
-    <h3>🧾 Receipt Preview</h3>
+    <h3>🧾 Receipt</h3>
     <pre id="receiptBox"></pre>
   </div>
 
-  <button class="btn" onclick="sendSummary()">📤 Send</button>
-  <button class="btn" onclick="downloadCSV()">⬇ CSV</button>
-  <button class="btn" onclick="window.print()">🖨 Print</button>
-  <button class="btn secondary" onclick="clearSales()">🗑 Clear today Sales</button>
-  <button class="btn" onclick="exitAdmin()">🔙 Exit</button>
+  <button class="btn" onclick="sendSummary()">Send</button>
+  <button class="btn" onclick="downloadCSV()">CSV</button>
+  <button class="btn" onclick="window.print()">Print</button>
+  <button class="btn secondary" onclick="clearSales()">Clear Sales</button>
+  <button class="btn" onclick="exitAdmin()">Exit</button>
 
 </div>
 
 <script>
-/* ===== CONFIG ===== */
-const ADMIN_PIN = "8003";
+/* ================= CONFIG ================= */
+const ADMIN_PIN = "1234";
+let adminLogoutTimer = null;
 
-/* ===== DATA ===== */
+/* ================= DATA ================= */
 let total=0, qty={};
 
 const ITEMS={
@@ -178,7 +193,7 @@ const ITEMS={
   campa:"క్యాంపా"
 };
 
-/* ===== SELL ===== */
+/* ================= SELL ================= */
 function add(id,price){
   qty[id]=(qty[id]||0)+1;
   document.getElementById(id).innerText=qty[id];
@@ -193,7 +208,7 @@ function resetAll(){
   document.querySelectorAll(".qty").forEach(q=>q.innerText=0);
 }
 
-/* ===== STORAGE ===== */
+/* ================= STORAGE ================= */
 function saveSale(){
   const sales=JSON.parse(localStorage.getItem("sales")||"[]");
   let items={};
@@ -202,15 +217,16 @@ function saveSale(){
   localStorage.setItem("sales",JSON.stringify(sales));
 }
 
-/* ===== ADMIN ACCESS ===== */
+/* ================= ADMIN ACCESS ================= */
 let pressTimer;
 const header=document.getElementById("appHeader");
+
 header.addEventListener("touchstart",()=>pressTimer=setTimeout(askPin,3000));
 header.addEventListener("touchend",()=>clearTimeout(pressTimer));
 header.addEventListener("dblclick",askPin);
 
 function askPin(){
-  const pin=prompt("Admin PIN");
+  const pin=prompt("Enter Admin PIN");
   if(pin===ADMIN_PIN) enterAdmin();
   else alert("Wrong PIN");
 }
@@ -219,14 +235,19 @@ function enterAdmin(){
   document.getElementById("calculator").classList.add("hidden");
   document.getElementById("adminPanel").classList.remove("hidden");
   buildAdminData();
+
+  /* ⏱ AUTO LOGOUT (5 MINUTES) */
+  clearTimeout(adminLogoutTimer);
+  adminLogoutTimer=setTimeout(exitAdmin,5*60*1000);
 }
 
 function exitAdmin(){
+  clearTimeout(adminLogoutTimer);
   document.getElementById("adminPanel").classList.add("hidden");
   document.getElementById("calculator").classList.remove("hidden");
 }
 
-/* ===== ADMIN DATA ===== */
+/* ================= ADMIN DATA ================= */
 function buildAdminData(){
   const sales=JSON.parse(localStorage.getItem("sales")||"[]");
   buildDailyTotals(sales);
@@ -245,7 +266,7 @@ function buildDailyTotals(sales){
 }
 
 function buildReceipt(sales){
-  let txt="Lumax Enterprises\n------------------\n";
+  let txt="LumaTech Store\n------------------\n";
   sales.forEach((s,i)=>{
     txt+=`#${i+1} ${new Date(s.date).toLocaleString()}\n`;
     for(let k in s.items) txt+=` ${k} x ${s.items[k]}\n`;
@@ -254,10 +275,11 @@ function buildReceipt(sales){
   document.getElementById("receiptBox").innerText=txt||"No data";
 }
 
-/* ===== EXPORTS ===== */
+/* ================= EXPORT ================= */
 function sendSummary(){
-  const text=document.getElementById("receiptBox").innerText;
-  window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+  window.open(`https://wa.me/?text=${encodeURIComponent(
+    document.getElementById("receiptBox").innerText
+  )}`);
 }
 
 function downloadCSV(){
@@ -274,31 +296,20 @@ function downloadCSV(){
   a.download="sales.csv";
   a.click();
 }
-function clearSales(){
-  // Step 1: Confirmation (English)
-  const ok = confirm("⚠️ Are you sure you want to permanently delete ALL sales data?");
-  if(!ok) return;
 
-  // Step 2: PIN re-check (English)
-  const pin = prompt("Re-enter Admin PIN to confirm");
-  if(pin !== ADMIN_PIN){
-    alert("❌ Wrong PIN. Sales data was NOT deleted.");
+/* ================= CLEAR SALES (SAFE) ================= */
+function clearSales(){
+  if(!confirm("Delete ALL sales permanently?")) return;
+  const pin=prompt("Re-enter Admin PIN");
+  if(pin!==ADMIN_PIN){
+    alert("Wrong PIN. Action cancelled.");
     return;
   }
-
-  // Step 3: Clear storage
   localStorage.removeItem("sales");
-
-  // Step 4: Clear admin UI
-  const daily = document.getElementById("dailyTotals");
-  const receipt = document.getElementById("receiptBox");
-  if(daily) daily.innerText = "No data available";
-  if(receipt) receipt.innerText = "No data available";
-
-  alert("✅ All sales data has been cleared successfully.");
+  document.getElementById("dailyTotals").innerText="No data";
+  document.getElementById("receiptBox").innerText="No data";
+  alert("Sales cleared successfully.");
 }
-
-
 </script>
 
 </body>
