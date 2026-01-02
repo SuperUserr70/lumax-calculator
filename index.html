@@ -151,7 +151,7 @@ pre{
   <footer>
     <h3>మొత్తం ₹<span id="total">0</span></h3>
     <button class="btn" onclick="resetAll()">రిసెట్</button>
-	<div class="credit">Designed by LumaTech</div>
+    <div class="credit">Designed by LumaTech</div>
   </footer>
 
 </div>
@@ -217,13 +217,33 @@ function saveSale(){
   localStorage.setItem("sales",JSON.stringify(sales));
 }
 
-/* ================= ADMIN ACCESS ================= */
+/* ================= ADMIN ACCESS (SMART) ================= */
+let usingTouch = false;
+
+// detect input type
+window.addEventListener("touchstart", () => {
+  usingTouch = true;
+}, { once:true });
+
+window.addEventListener("mousemove", () => {
+  usingTouch = false;
+}, { once:true });
+
 let pressTimer;
 const header=document.getElementById("appHeader");
 
-header.addEventListener("touchstart",()=>pressTimer=setTimeout(askPin,3000));
+// 📱 Mobile → long press only
+header.addEventListener("touchstart",()=>{
+  if(!usingTouch) return;
+  pressTimer=setTimeout(askPin,3000);
+});
 header.addEventListener("touchend",()=>clearTimeout(pressTimer));
-header.addEventListener("dblclick",askPin);
+
+// 💻 Desktop → double click only
+header.addEventListener("dblclick",()=>{
+  if(usingTouch) return;
+  askPin();
+});
 
 function askPin(){
   const pin=prompt("Enter Admin PIN");
@@ -236,7 +256,6 @@ function enterAdmin(){
   document.getElementById("adminPanel").classList.remove("hidden");
   buildAdminData();
 
-  /* ⏱ AUTO LOGOUT (5 MINUTES) */
   clearTimeout(adminLogoutTimer);
   adminLogoutTimer=setTimeout(exitAdmin,5*60*1000);
 }
