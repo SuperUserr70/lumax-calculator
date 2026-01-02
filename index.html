@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Touch Hisab</title>
+
+<style>
+body {
+  font-family: system-ui, Arial;
+  margin: 0;
+  background: #f4f4f4;
+}
+
+header {
+  text-align: center;
+  padding: 14px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.item {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px 8px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,.2);
+  cursor: pointer;
+}
+
+.item-name {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.price {
+  font-size: 20px;
+  color: #444;
+  margin-top: 6px;
+}
+
+.qty {
+  font-size: 22px;
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+footer {
+  position: sticky;
+  bottom: 0;
+  background: #222;
+  color: #fff;
+  padding: 14px;
+  text-align: center;
+  font-size: 26px;
+}
+
+.reset {
+  background: #c62828;
+  margin-left: 14px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  border: none;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<header>టచ్ లెక్కలు</header>
+
+<div class="grid">
+
+  <div class="item" onclick="add('oneL',120)">
+    <div class="item-name">1 లీటర్</div>
+    <div class="price">₹120</div>
+    <div class="qty" id="oneL">0</div>
+  </div>
+
+  <div class="item" onclick="add('halfL',160)">
+    <div class="item-name">1/2 లీటర్</div>
+    <div class="price">₹160</div>
+    <div class="qty" id="halfL">0</div>
+  </div>
+
+  <div class="item" onclick="add('twoL',180)">
+    <div class="item-name">2 లీటర్</div>
+    <div class="price">₹180</div>
+    <div class="qty" id="twoL">0</div>
+  </div>
+
+  <div class="item" onclick="add('badam',530)">
+    <div class="item-name">బాదం</div>
+    <div class="price">₹530</div>
+    <div class="qty" id="badam">0</div>
+  </div>
+
+  <div class="item" onclick="add('campa',230)">
+    <div class="item-name">క్యాంపా</div>
+    <div class="price">₹230</div>
+    <div class="qty" id="campa">0</div>
+  </div>
+
+</div>
+
+<footer>
+  మొత్తం ₹<span id="total">0</span>
+  <button class="reset" onclick="resetAll()">రిసెట్</button>
+</footer>
+
+<script>
+let total = 0;
+let qty = {};
+
+function add(id, price) {
+  qty[id] = (qty[id] || 0) + 1;
+  document.getElementById(id).innerText = qty[id];
+  total += price;
+  document.getElementById("total").innerText = total;
+}
+
+function resetAll() {
+  total = 0;
+  qty = {};
+  document.getElementById("total").innerText = 0;
+  document.querySelectorAll(".qty").forEach(q => q.innerText = 0);
+}
+</script>
+
+</body>
+</html>
